@@ -8,14 +8,8 @@ import {
   colliders,
 } from "../../store/useAvatarStore";
 
-// Reusable math objects (created once outside useFrame for speed)
 const UP_AXIS = new THREE.Vector3(0, 1, 0);
 const targetQuat = new THREE.Quaternion();
-
-// Camera positioning helpers
-const CAMERA_OFFSET = new THREE.Vector3(0, 5, 8);
-const desiredCamPos = new THREE.Vector3();
-const lookTarget = new THREE.Vector3();
 const PLAYER_RADIUS = 0.45;
 
 function hitsAnyCollider(x, z) {
@@ -29,7 +23,7 @@ function hitsAnyCollider(x, z) {
 
 export function PlayerController({
   speed = 4,
-  bounds = 7,
+  bounds = 6.3,
   animation = "idle",
   ...avatarProps
 }) {
@@ -68,32 +62,34 @@ export function PlayerController({
     };
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!playerRef.current) return;
 
     const { forward, backward, left, right } = keys.current;
     const keyX = (right ? 1 : 0) - (left ? 1 : 0);
     const keyZ = (backward ? 1 : 0) - (forward ? 1 : 0);
 
-    // Use joystick if pushed past deadzone, otherwise fall back to WASD
     const hasJoy = Math.hypot(joystickInput.x, joystickInput.y) > 0.1;
-    let moveX = hasJoy ? joystickInput.x : keyX;
-    let moveZ = hasJoy ? joystickInput.y : keyZ;
+    let rawX = hasJoy ? joystickInput.x : keyX;
+    let rawZ = hasJoy ? joystickInput.y : keyZ;
 
-    const movingNow = moveX !== 0 || moveZ !== 0;
+    const movingNow = rawX !== 0 || rawZ !== 0;
 
     if (movingNow !== wasMoving.current) {
       wasMoving.current = movingNow;
       setIsMoving(movingNow);
     }
 
-    // 1. Move, collide-and-slide, and rotate
     if (movingNow) {
-      const length = Math.hypot(moveX, moveZ);
+      const length = Math.hypot(rawX, rawZ);
       if (length > 1) {
-        moveX /= length;
-        moveZ /= length;
+        rawX /= length;
+        rawZ /= length;
       }
+
+      // Rotate input 45° to match the isometric screen axes
+      const moveX = (rawX + rawZ) * Math.SQRT1_2;
+      const moveZ = (rawZ - rawX) * Math.SQRT1_2;
 
       const step = speed * Math.min(delta, 0.1);
       const currX = playerRef.current.position.x;
@@ -109,7 +105,6 @@ export function PlayerController({
         playerRef.current.position.z = nextZ;
       }
 
-      // Broadcast updated position for prop proximity checks
       playerPosition.x = playerRef.current.position.x;
       playerPosition.z = playerRef.current.position.z;
 
@@ -117,17 +112,6 @@ export function PlayerController({
       targetQuat.setFromAxisAngle(UP_AXIS, targetAngle);
       playerRef.current.quaternion.slerp(targetQuat, 0.15);
     }
-
-    // 2. Smoothly follow the player with the camera
-    desiredCamPos.copy(playerRef.current.position).add(CAMERA_OFFSET);
-    state.camera.position.lerp(desiredCamPos, 0.08);
-
-    lookTarget.set(
-      playerRef.current.position.x,
-      playerRef.current.position.y + 1.3,
-      playerRef.current.position.z
-    );
-    state.camera.lookAt(lookTarget);
   });
 
   return (

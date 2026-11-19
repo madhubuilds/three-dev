@@ -4,8 +4,7 @@ export function AvatarLabel({ username = "Player", message = "" }) {
   return (
     <Html
       position={[0, 3.25, 0]} // Sits cleanly above the hair
-      center
-      distanceFactor={8} // Scales naturally with camera distance
+      center 
       style={{ pointerEvents: "none", userSelect: "none" }}
     >
       <div

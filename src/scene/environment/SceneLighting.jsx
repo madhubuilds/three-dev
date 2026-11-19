@@ -1,38 +1,64 @@
-import { ContactShadows, Environment } from '@react-three/drei'
+import { Environment, Lightformer } from "@react-three/drei";
 
 export function SceneLighting() {
   return (
     <>
-      {/* 1. Soft sky-to-ground bounce */}
-      <hemisphereLight args={['#ffffff', '#8d99ae', 0.6]} />
+      {/* Replaces flat ambientLight: warm cream from above, caramel bounce from below */}
+      <hemisphereLight args={["#FFF3E0", "#B57644", 0.7]} />
 
-      {/* 2. Key Light: Main sun from front-right */}
+      {/* Main Window Sunlight (from left/front-left casting soft diagonal shadows) */}
       <directionalLight
-        position={[5, 8, 5]}
-        intensity={1.5}
+        position={[-8, 15, 7]}
+        intensity={1.7}
+        color="#FFE2C2"
         castShadow
         shadow-mapSize={[1024, 1024]}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={10}
+        shadow-camera-bottom={-10}
         shadow-bias={-0.0005}
       />
 
-      {/* 3. Rim Light: Warm highlight from back-left */}
-      <directionalLight
-        position={[-5, 5, -5]}
-        intensity={0.8}
-        color="#FFE600"
+      {/* Soft opposite rim light so back edges stay readable */}
+      <directionalLight position={[8, 6, -6]} intensity={0.35} color="#FFD2A6" />
+
+      {/* Warm Desk Lamp Pool of Light */}
+      <pointLight
+        position={[-3.2, 2.0, -5.0]}
+        intensity={3.5}
+        distance={6}
+        decay={2}
+        color="#FF9D42"
       />
 
-      {/* 4. Subtle real-world reflections */}
-      <Environment preset="city" environmentIntensity={0.3} />
-
-      {/* 5. Soft shadow right beneath the feet */}
-      <ContactShadows
-        position={[0, 0.01, 0]}
-        opacity={0.45}
-        scale={10}
-        blur={2}
-        far={4}
-      />
+      {/* Lightweight Procedural Studio Bounce (Zero external HDRI download) */}
+      <Environment resolution={256}>
+        <Lightformer
+          form="rect"
+          intensity={1.4}
+          color="#FFF5E6"
+          scale={[12, 12, 1]}
+          position={[0, 10, 0]}
+          rotation={[Math.PI / 2, 0, 0]}
+        />
+        <Lightformer
+          form="rect"
+          intensity={1.8}
+          color="#FFD8B1"
+          scale={[8, 6, 1]}
+          position={[-10, 4, 2]}
+          rotation={[0, Math.PI / 2, 0]}
+        />
+        <Lightformer
+          form="rect"
+          intensity={0.8}
+          color="#C98A56"
+          scale={[10, 10, 1]}
+          position={[10, 2, 8]}
+          rotation={[0, -Math.PI / 2, 0]}
+        />
+      </Environment>
     </>
-  )
+  );
 }

@@ -19,7 +19,13 @@ export const useAvatarStore = create((set) => ({
     mouth: "smile", // smile | neutral | open | smirk
     mustache: "none", // none | classic | handlebar | walrus | goatee
   },
+  bio: "Building cool 3D worlds on the web.",
+  status: "Online",
+  roomTheme: "cozy",
 
+  setBio: (bio) => set({ bio }),
+  setStatus: (status) => set({ status }),
+  setRoomTheme: (roomTheme) => set({ roomTheme }),
   setAccessory: (slot, value) =>
     set((state) => ({
       accessories: { ...state.accessories, [slot]: value },
