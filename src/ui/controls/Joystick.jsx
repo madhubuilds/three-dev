@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { joystickInput } from "../../store/useAvatarStore";
 
-const MAX_RADIUS = 36;
+const MAX_RADIUS = 34;
 
 export function Joystick() {
   const baseRef = useRef(null);
@@ -54,11 +54,12 @@ export function Joystick() {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className="pointer-events-auto fixed bottom-6 left-1/2 z-20 flex h-24 w-24 -translate-x-1/2 touch-none select-none items-center justify-center rounded-full border-2 border-[#080808] bg-white/85 shadow-[3px_3px_0px_#080808]"
+      className="pointer-events-auto fixed bottom-24 left-5 z-20 flex h-24 w-24 touch-none select-none items-center justify-center rounded-full border border-white/65 bg-white/45 shadow-[0_8px_24px_rgba(23,35,63,0.14)] backdrop-blur-md"
     >
+      <div className="h-12 w-12 rounded-full border border-[#17233F]/10" />
       <div
         style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
-        className="h-10 w-10 rounded-full border-2 border-[#080808] bg-[#FF5A1F] shadow-[2px_2px_0px_#080808]"
+        className="absolute h-10 w-10 rounded-full border-2 border-white bg-[#FF5A1F] shadow-[0_4px_12px_rgba(255,90,31,0.45)]"
       />
     </div>
   );

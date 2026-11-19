@@ -9,6 +9,7 @@ import { HangoutBench } from "./props/HangoutBench";
 import { ProfileDesk } from "./props/ProfileDesk";
 import { IndoorPlant } from "./props/IndoorPlant";
 import { WallDecor } from "./props/WallDecor";
+import { WallBioBoard } from "./props/WallBioBoard";
 import { PlacedFurnitureLayer } from "./props/RoomFurniture";
 import { useAvatarStore } from "../store/useAvatarStore";
 
@@ -31,6 +32,7 @@ export function WorldCanvas() {
         <SceneLighting />
         <ProfileRoom />
         <WallDecor />
+        <WallBioBoard />
         <PlacedFurnitureLayer />
         <IsometricCameraRig />
 

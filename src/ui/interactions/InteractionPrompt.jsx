@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ChevronRight, Hand, MessageSquare, Sparkles, X } from "lucide-react";
 import { useAvatarStore } from "../../store/useAvatarStore";
 
 const THEMES = ["cozy", "studio", "midnight"];
@@ -21,7 +22,6 @@ export function InteractionPrompt() {
 
   const [lineIndex, setLineIndex] = useState(0);
 
-  // Reset conversation to first line whenever a new NPC is opened
   useEffect(() => {
     setLineIndex(0);
   }, [activeProp?.id]);
@@ -34,30 +34,35 @@ export function InteractionPrompt() {
 
   return (
     <>
-      {/* Bottom-Right Contextual Action Button */}
+      {/* Bottom-Right Contextual Action Pill */}
       {nearbyProp && !activeProp && (
         <button
           onClick={() => setActiveProp(nearbyProp)}
-          className="pointer-events-auto fixed right-5 bottom-9 z-20 border-2 border-[#080808] bg-[#FFE600] px-4 py-3 text-xs font-black uppercase text-[#080808] shadow-[4px_4px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="pointer-events-auto fixed right-5 bottom-24 z-20 flex items-center gap-2 rounded-full border border-white/40 bg-[#FF5A1F] px-4 py-3 text-xs font-bold text-white shadow-[0_10px_25px_rgba(255,90,31,0.38)] transition active:scale-95"
         >
-          {nearbyProp.actionLabel}
+          {nearbyProp.type === "npc" ? (
+            <MessageSquare size={15} />
+          ) : (
+            <Sparkles size={15} />
+          )}
+          <span>{nearbyProp.actionLabel}</span>
         </button>
       )}
 
-      {/* NPC Dialogue Modal */}
+      {/* NPC Dialogue Card */}
       {activeProp?.type === "npc" && (
-        <div className="pointer-events-auto fixed inset-0 z-30 flex items-end justify-center bg-black/35 p-4 sm:items-center">
-          <div className="w-full max-w-sm border-2 border-[#080808] bg-white p-5 shadow-[6px_6px_0px_#080808]">
+        <div className="pointer-events-auto fixed inset-0 z-30 flex items-end justify-center bg-[#17233F]/30 p-4 backdrop-blur-[2px] sm:items-center">
+          <div className="w-full max-w-sm rounded-3xl border border-white/70 bg-white/95 p-5 shadow-2xl backdrop-blur-xl">
             <div className="mb-3 flex items-center justify-between">
-              <span className="border-2 border-[#080808] bg-[#FFE600] px-2.5 py-0.5 text-xs font-black uppercase text-[#080808]">
+              <span className="rounded-full bg-[#FF5A1F]/12 px-3 py-1 text-xs font-bold text-[#FF5A1F]">
                 {activeProp.name}
               </span>
-              <span className="text-[11px] font-black text-neutral-400">
+              <span className="text-[11px] font-semibold text-[#17233F]/45">
                 {lineIndex + 1} / {activeProp.dialogue.length}
               </span>
             </div>
 
-            <p className="mb-5 min-h-[3.5rem] text-sm font-bold leading-relaxed text-[#080808]">
+            <p className="mb-5 min-h-[3.25rem] text-sm font-medium leading-relaxed text-[#17233F]">
               "{activeProp.dialogue[lineIndex]}"
             </p>
 
@@ -65,56 +70,60 @@ export function InteractionPrompt() {
               {lineIndex < activeProp.dialogue.length - 1 ? (
                 <button
                   onClick={() => setLineIndex((i) => i + 1)}
-                  className="flex-1 border-2 border-[#080808] bg-[#FF5A1F] py-2.5 text-xs font-black uppercase text-white shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#FF5A1F] py-2.5 text-xs font-bold text-white shadow-sm transition active:scale-95"
                 >
-                  Next
+                  <span>Next</span>
+                  <ChevronRight size={15} />
                 </button>
               ) : (
                 <button
                   onClick={handleWaveBack}
-                  className="flex-1 border-2 border-[#080808] bg-[#FFE600] py-2.5 text-xs font-black uppercase text-[#080808] shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#FFE600] py-2.5 text-xs font-bold text-[#17233F] shadow-sm transition active:scale-95"
                 >
-                  Wave Back
+                  <Hand size={15} />
+                  <span>Wave Back</span>
                 </button>
               )}
 
               <button
                 onClick={() => setActiveProp(null)}
-                className="border-2 border-[#080808] bg-[#17233F] px-4 py-2.5 text-xs font-black uppercase text-white shadow-[3px_3px_0px_#080808]"
+                className="rounded-full bg-[#17233F]/8 px-4 py-2.5 text-xs font-bold text-[#17233F] transition hover:bg-[#17233F]/15"
               >
-                Bye
+                Close
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Profile Desk Modal */}
+      {/* Profile Card Modal */}
       {activeProp?.type === "profile" && (
-        <div className="pointer-events-auto fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-xs border-2 border-[#080808] bg-white p-5 shadow-[6px_6px_0px_#080808]">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="bg-[#080808] px-2 py-0.5 text-xs font-black text-[#FFE600]">
+        <div className="pointer-events-auto fixed inset-0 z-30 flex items-center justify-center bg-[#17233F]/30 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-xs rounded-3xl border border-white/70 bg-white/95 p-5 shadow-2xl backdrop-blur-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <span className="rounded-full bg-[#17233F] px-3 py-1 text-xs font-bold text-white">
                 @{username}
               </span>
               <button
                 onClick={() => setActiveProp(null)}
-                className="border-2 border-[#080808] bg-[#FF5A1F] px-2 py-0.5 text-xs font-black text-white"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-[#17233F]/8 text-[#17233F] hover:bg-[#17233F]/15"
               >
-                X
+                <X size={15} />
               </button>
             </div>
 
-            <p className="mb-1 text-[11px] font-black uppercase">Status</p>
-            <div className="mb-3 flex gap-1.5">
+            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#17233F]/50">
+              Status
+            </p>
+            <div className="mb-3.5 grid grid-cols-4 gap-1 rounded-2xl bg-[#17233F]/5 p-1">
               {STATUSES.map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatus(st)}
-                  className={`flex-1 border-2 border-[#080808] py-1 text-[11px] font-black uppercase ${
+                  className={`rounded-xl py-1.5 text-[11px] font-bold transition ${
                     status === st
-                      ? "bg-[#FFE600] text-[#080808]"
-                      : "bg-white text-neutral-500"
+                      ? "bg-white text-[#17233F] shadow-sm"
+                      : "text-[#17233F]/55"
                   }`}
                 >
                   {st}
@@ -122,25 +131,29 @@ export function InteractionPrompt() {
               ))}
             </div>
 
-            <p className="mb-1 text-[11px] font-black uppercase">Bio</p>
+            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#17233F]/50">
+              Bio
+            </p>
             <textarea
               rows={2}
               maxLength={80}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="mb-3 w-full resize-none border-2 border-[#080808] p-2 text-xs font-bold outline-none"
+              className="mb-3.5 w-full resize-none rounded-2xl border border-[#17233F]/12 bg-[#17233F]/[0.03] p-2.5 text-xs font-medium text-[#17233F] outline-none focus:border-[#FF5A1F]"
             />
 
-            <p className="mb-1 text-[11px] font-black uppercase">Room Theme</p>
-            <div className="mb-4 flex gap-1.5">
+            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#17233F]/50">
+              Room Vibe
+            </p>
+            <div className="mb-5 grid grid-cols-3 gap-1.5">
               {THEMES.map((t) => (
                 <button
                   key={t}
                   onClick={() => setRoomTheme(t)}
-                  className={`flex-1 border-2 border-[#080808] py-1.5 text-xs font-black uppercase ${
+                  className={`rounded-xl py-2 text-xs font-bold capitalize transition ${
                     roomTheme === t
-                      ? "bg-[#FF5A1F] text-white shadow-[2px_2px_0px_#080808]"
-                      : "bg-white text-[#080808]"
+                      ? "bg-[#FF5A1F] text-white shadow-sm"
+                      : "bg-[#17233F]/6 text-[#17233F]/75"
                   }`}
                 >
                   {t}
@@ -150,7 +163,7 @@ export function InteractionPrompt() {
 
             <button
               onClick={() => setActiveProp(null)}
-              className="w-full border-2 border-[#080808] bg-[#17233F] py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0px_#080808]"
+              className="w-full rounded-full bg-[#17233F] py-2.5 text-xs font-bold text-white shadow-md transition active:scale-95"
             >
               Done
             </button>
@@ -158,29 +171,29 @@ export function InteractionPrompt() {
         </div>
       )}
 
-      {/* Standard Prop Modal (Bench, etc.) */}
+      {/* Standard Prop Modal */}
       {activeProp &&
         activeProp.type !== "profile" &&
         activeProp.type !== "npc" && (
-          <div className="pointer-events-auto fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-xs border-2 border-[#080808] bg-white p-5 shadow-[6px_6px_0px_#080808]">
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <h2 className="text-base font-black uppercase text-[#080808]">
+          <div className="pointer-events-auto fixed inset-0 z-30 flex items-center justify-center bg-[#17233F]/30 p-4 backdrop-blur-[2px]">
+            <div className="w-full max-w-xs rounded-3xl border border-white/70 bg-white/95 p-5 shadow-2xl backdrop-blur-xl">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <h2 className="text-base font-bold text-[#17233F]">
                   {activeProp.title}
                 </h2>
                 <button
                   onClick={() => setActiveProp(null)}
-                  className="border-2 border-[#080808] bg-[#FF5A1F] px-2 py-0.5 text-xs font-black text-white"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#17233F]/8 text-[#17233F]"
                 >
-                  X
+                  <X size={15} />
                 </button>
               </div>
-              <p className="mb-4 text-sm font-medium text-neutral-700">
+              <p className="mb-4 text-xs font-medium leading-relaxed text-[#17233F]/75">
                 {activeProp.description}
               </p>
               <button
                 onClick={() => setActiveProp(null)}
-                className="w-full border-2 border-[#080808] bg-[#17233F] py-2 text-xs font-black uppercase text-white shadow-[3px_3px_0px_#080808]"
+                className="w-full rounded-full bg-[#17233F] py-2.5 text-xs font-bold text-white shadow-md"
               >
                 Got It
               </button>

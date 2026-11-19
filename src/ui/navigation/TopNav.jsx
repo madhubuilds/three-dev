@@ -1,18 +1,17 @@
 import { useState, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { Armchair, Check, MessageCircle, Send, X } from "lucide-react";
 import { useAvatarStore } from "../../store/useAvatarStore";
 
 export function TopNav() {
   const { pathname } = useLocation();
   const isRoom = pathname === "/";
-  const isPlaza = pathname === "/plaza";
 
   const {
     username,
     status,
     setChatMessage,
     setActiveProp,
-    setNearbyProp,
     isDecorating,
     setIsDecorating,
   } = useAvatarStore();
@@ -20,12 +19,6 @@ export function TopNav() {
   const [chatOpen, setChatOpen] = useState(false);
   const [input, setInput] = useState("");
   const timerRef = useRef(null);
-
-  const handleRouteSwitch = () => {
-    setIsDecorating(false);
-    setNearbyProp(null);
-    setActiveProp(null);
-  };
 
   const handleSendChat = (e) => {
     e.preventDefault();
@@ -40,81 +33,65 @@ export function TopNav() {
   };
 
   return (
-    <header className="pointer-events-none fixed top-0 right-0 left-0 z-20 p-3 sm:p-4">
-      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-2">
-        {/* Left: User Identity & Room / Plaza Switcher */}
-        <div className="pointer-events-auto flex items-center gap-1.5">
-          <button
-            onClick={() => setActiveProp({ id: "profile-desk", type: "profile" })}
-            className="flex items-center gap-2 border-2 border-[#080808] bg-white px-2.5 py-1.5 text-left shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-          >
-            <span className="h-2.5 w-2.5 rounded-full border border-[#080808] bg-[#22C55E]" />
-            <span className="text-xs font-black tracking-tight text-[#080808]">
-              @{username || "you"}
-            </span>
-            <span className="hidden border-l-2 border-[#080808] pl-2 text-[10px] font-black uppercase text-neutral-500 md:inline">
-              {status}
-            </span>
-          </button>
+    <header className="pointer-events-none fixed top-0 right-0 left-0 z-20 p-3.5 sm:p-5">
+      <div className="mx-auto flex max-w-4xl items-center justify-between gap-2">
+        {/* Left: Frosted Profile Pill */}
+        <button
+          onClick={() => setActiveProp({ id: "profile-desk", type: "profile" })}
+          className="pointer-events-auto flex items-center gap-2.5 rounded-full border border-white/60 bg-white/80 px-3.5 py-2 shadow-[0_8px_24px_rgba(23,35,63,0.12)] backdrop-blur-md transition active:scale-95"
+        >
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-xs font-bold tracking-tight text-[#17233F]">
+            @{username || "you"}
+          </span>
+          <span className="rounded-full bg-[#17233F]/8 px-2 py-0.5 text-[10px] font-semibold text-[#17233F]/70">
+            {status}
+          </span>
+        </button>
 
-          <Link
-            to="/"
-            onClick={handleRouteSwitch}
-            className={`border-2 border-[#080808] px-2.5 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0px_#080808] ${
-              isRoom ? "bg-[#FF5A1F] text-white" : "bg-white text-[#080808]"
-            }`}
-          >
-            Room
-          </Link>
-
-          <Link
-            to="/plaza"
-            onClick={handleRouteSwitch}
-            className={`border-2 border-[#080808] px-2.5 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0px_#080808] ${
-              isPlaza ? "bg-[#FF5A1F] text-white" : "bg-white text-[#080808]"
-            }`}
-          >
-            Plaza
-          </Link>
-        </div>
-
-        {/* Right: Decor (Room only), Quick Chat & Avatar Studio */}
-        <div className="pointer-events-auto flex items-center gap-1.5">
+        {/* Right: Quick Action Pills */}
+        <div className="pointer-events-auto flex items-center gap-2">
           {isRoom && (
             <button
-              onClick={() => setIsDecorating(!isDecorating)}
-              className={`border-2 border-[#080808] px-2.5 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
-                isDecorating ? "bg-[#17233F] text-white" : "bg-white text-[#080808]"
+              onClick={() => {
+                setChatOpen(false);
+                setIsDecorating(!isDecorating);
+              }}
+              className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold shadow-[0_8px_24px_rgba(23,35,63,0.12)] backdrop-blur-md transition active:scale-95 ${
+                isDecorating
+                  ? "border-[#17233F] bg-[#17233F] text-white"
+                  : "border-white/60 bg-white/80 text-[#17233F]"
               }`}
             >
-              {isDecorating ? "Done" : "Decor"}
+              {isDecorating ? <Check size={15} /> : <Armchair size={15} />}
+              <span>{isDecorating ? "Done" : "Decor"}</span>
             </button>
           )}
 
-          <button
-            onClick={() => setChatOpen((o) => !o)}
-            className={`border-2 border-[#080808] px-2.5 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
-              chatOpen ? "bg-[#FF5A1F] text-white" : "bg-white text-[#080808]"
-            }`}
-          >
-            {chatOpen ? "Close" : "Chat"}
-          </button>
-
-          <Link
-            to="/avatar"
-            onClick={handleRouteSwitch}
-            className="border-2 border-[#080808] bg-[#FFE600] px-2.5 py-1.5 text-xs font-black uppercase text-[#080808] shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-          >
-            Avatar
-          </Link>
+          {!isDecorating && (
+            <button
+              onClick={() => setChatOpen((o) => !o)}
+              aria-label="Toggle quick chat"
+              className={`flex h-9 w-9 items-center justify-center rounded-full border shadow-[0_8px_24px_rgba(23,35,63,0.12)] backdrop-blur-md transition active:scale-95 ${
+                chatOpen
+                  ? "border-[#FF5A1F] bg-[#FF5A1F] text-white"
+                  : "border-white/60 bg-white/80 text-[#17233F]"
+              }`}
+            >
+              {chatOpen ? <X size={16} /> : <MessageCircle size={16} />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Collapsible Top Chat Input */}
-      {chatOpen && (
+      {/* Floating Quick-Chat Bubble Input */}
+      {chatOpen && !isDecorating && (
         <form
           onSubmit={handleSendChat}
-          className="pointer-events-auto mx-auto mt-2.5 flex max-w-sm gap-2"
+          className="pointer-events-auto mx-auto mt-3 flex max-w-sm items-center gap-1.5 rounded-full border border-white/70 bg-white/90 p-1.5 pl-4 shadow-[0_12px_32px_rgba(23,35,63,0.16)] backdrop-blur-md"
         >
           <input
             type="text"
@@ -122,14 +99,14 @@ export function TopNav() {
             maxLength={60}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Say something..."
-            className="flex-1 border-2 border-[#080808] bg-white px-3 py-1.5 text-xs font-bold text-[#080808] shadow-[3px_3px_0px_#080808] outline-none"
+            placeholder="Say something to the room..."
+            className="flex-1 bg-transparent text-xs font-medium text-[#17233F] placeholder:text-[#17233F]/45 outline-none"
           />
           <button
             type="submit"
-            className="border-2 border-[#080808] bg-[#17233F] px-3.5 py-1.5 text-xs font-black uppercase text-white shadow-[3px_3px_0px_#080808]"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF5A1F] text-white shadow-sm transition active:scale-90"
           >
-            Send
+            <Send size={14} />
           </button>
         </form>
       )}
