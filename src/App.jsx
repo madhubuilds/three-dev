@@ -1,6 +1,7 @@
-import { useState, useRef } from "react"; 
-import { WorldCanvas } from "./scene/WorldCanvas";
-import { HUD } from "./ui/HUD";
+import { useState, useRef } from "react";  
+import { Route, Routes } from "react-router-dom";
+import { WorldPage } from "./pages/WorldPage";
+import { AvatarStudioPage } from "./pages/AvatarStudioPage";
 
 function App() {
   const [animation, setAnimation] = useState("idle");
@@ -27,11 +28,11 @@ function App() {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => setChatMessage(""), 4000);
   };
-  return (
-    <main className="relative h-[100dvh] w-screen overflow-hidden">
-      <WorldCanvas />
-      <HUD />
-    </main>
+  return ( 
+      <Routes>
+        <Route path="/" element={<WorldPage />} />
+        <Route path="/avatar" element={<AvatarStudioPage />} />
+      </Routes> 
   );
 }
 

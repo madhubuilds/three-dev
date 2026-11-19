@@ -14,7 +14,7 @@ export const useAvatarStore = create((set) => ({
   // Interaction state
   nearbyProp: null, // Pop-up button when standing close
   activeProp: null, // Full modal when user taps the button
-
+  setUsername: (username) => set({ username }),
   setAnimation: (animation) => set({ animation }),
   setColor: (part, value) =>
     set((state) => ({

@@ -16,8 +16,8 @@ export function AvatarControls() {
   return (
     <div className="pointer-events-auto fixed top-4 left-4 z-20">
       {/* Mobile-first toggle button */}
-      <button
-        onClick={() => setOpen((o) => !o)}
+     <button
+        on Click={() => setOpen((o) => !o)}
         className="border-2 border-[#080808] bg-[#FFE600] px-3 py-1.5 text-xs font-black uppercase shadow-[3px_3px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
       >
         {open ? "Close" : "Customize"}
