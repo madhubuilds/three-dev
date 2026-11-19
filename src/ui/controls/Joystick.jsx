@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { joystickInput } from "../../store/useAvatarStore";
 
-const MAX_RADIUS = 36; // Max pixels the knob can travel from center
+const MAX_RADIUS = 36;
 
 export function Joystick() {
   const baseRef = useRef(null);
@@ -17,15 +17,12 @@ export function Joystick() {
     let dy = clientY - centerY;
     const dist = Math.hypot(dx, dy);
 
-    // Clamp knob inside the circular base
     if (dist > MAX_RADIUS) {
       dx = (dx / dist) * MAX_RADIUS;
       dy = (dy / dist) * MAX_RADIUS;
     }
 
     setKnob({ x: dx, y: dy });
-
-    // Normalize values to [-1, 1] for the 3D controller
     joystickInput.x = dx / MAX_RADIUS;
     joystickInput.y = dy / MAX_RADIUS;
   };
@@ -57,13 +54,10 @@ export function Joystick() {
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
-      className="pointer-events-auto fixed bottom-20 left-5 z-20 flex h-24 w-24 touch-none select-none items-center justify-center rounded-full border-2 border-[#080808] bg-white/80 shadow-[3px_3px_0px_#080808]"
+      className="pointer-events-auto fixed bottom-6 left-1/2 z-20 flex h-24 w-24 -translate-x-1/2 touch-none select-none items-center justify-center rounded-full border-2 border-[#080808] bg-white/85 shadow-[3px_3px_0px_#080808]"
     >
-      {/* Movable Thumb Knob */}
       <div
-        style={{
-          transform: `translate(${knob.x}px, ${knob.y}px)`,
-        }}
+        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
         className="h-10 w-10 rounded-full border-2 border-[#080808] bg-[#FF5A1F] shadow-[2px_2px_0px_#080808]"
       />
     </div>

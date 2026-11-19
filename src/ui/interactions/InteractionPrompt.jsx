@@ -23,7 +23,7 @@ export function InteractionPrompt() {
       {nearbyProp && !activeProp && (
         <button
           onClick={() => setActiveProp(nearbyProp)}
-          className="pointer-events-auto fixed right-5 bottom-20 z-20 border-2 border-[#080808] bg-[#FFE600] px-4 py-3 text-xs font-black uppercase text-[#080808] shadow-[4px_4px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          className="pointer-events-auto fixed right-5 bottom-9 z-20 border-2 border-[#080808] bg-[#FFE600] px-4 py-3 text-xs font-black uppercase text-[#080808] shadow-[4px_4px_0px_#080808] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
         >
           {nearbyProp.actionLabel}
         </button>
