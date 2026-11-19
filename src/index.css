@@ -1,0 +1,12 @@
+@import "tailwindcss"; 
+/* Prevent mobile pull-to-refresh & bounce while touching 3D canvas */
+html,
+body,
+#root {
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  overscroll-behavior: none;
+  margin: 0;
+  padding: 0;
+}
