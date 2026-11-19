@@ -1,16 +1,20 @@
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
-import { SceneLighting } from './environment/SceneLighting'
-import { RobloxAvatar } from './avatar/RobloxAvatar'
-import { useAvatarStore } from '../store/useAvatarStore'
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { SceneLighting } from "./environment/SceneLighting";
+import { RobloxAvatar } from "./avatar/RobloxAvatar";
+import { useAvatarStore } from "../store/useAvatarStore";
 
 export function AvatarStudioCanvas() {
-  const { username, animation, colors } = useAvatarStore()
+  const { username, animation, colors, accessories } = useAvatarStore();
 
   return (
     <div className="h-full w-full touch-none">
-      <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 2.2, 4.5], fov: 45 }}>
-        <color attach="background" args={['#FFE600']} />
+      <Canvas
+        shadows
+        dpr={[1, 2]}
+        camera={{ position: [0, 2.2, 4.5], fov: 45 }}
+      >
+        <color attach="background" args={["#FFE600"]} />
         <SceneLighting />
 
         <RobloxAvatar
@@ -21,6 +25,7 @@ export function AvatarStudioCanvas() {
           hairColor={colors.hair}
           shirtColor={colors.shirt}
           pantsColor={colors.pants}
+          accessories={accessories}
         />
 
         {/* Studio Pedestal */}
@@ -38,5 +43,5 @@ export function AvatarStudioCanvas() {
         />
       </Canvas>
     </div>
-  )
+  );
 }

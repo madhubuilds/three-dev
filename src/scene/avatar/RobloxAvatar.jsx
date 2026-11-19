@@ -2,6 +2,8 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { AvatarLabel } from "./AvatarLabel";
+import { Glasses, Hair, Hat } from "../avatar/AvatarAccessories";
+import { AvatarFace } from "./face/AvatarFace";
 
 // Shared body shapes
 const headGeo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
@@ -19,41 +21,6 @@ const hairTopGeo = new THREE.BoxGeometry(0.66, 0.16, 0.66);
 const hairBackGeo = new THREE.BoxGeometry(0.66, 0.42, 0.14);
 const hairBangsGeo = new THREE.BoxGeometry(0.66, 0.12, 0.12);
 
-function Face({ noseColor }) {
-  return (
-    <group>
-      <mesh geometry={eyeGeo} position={[-0.12, 0.06, 0.3]}>
-        <meshStandardMaterial color="#080808" />
-      </mesh>
-      <mesh geometry={eyeGeo} position={[0.12, 0.06, 0.3]}>
-        <meshStandardMaterial color="#080808" />
-      </mesh>
-      <mesh geometry={noseGeo} position={[0, -0.02, 0.32]}>
-        <meshStandardMaterial color={noseColor} />
-      </mesh>
-      <mesh geometry={mouthGeo} position={[0, -0.15, 0.3]}>
-        <meshStandardMaterial color="#080808" />
-      </mesh>
-    </group>
-  );
-}
-
-function Hair({ color }) {
-  return (
-    <group>
-      <mesh geometry={hairTopGeo} position={[0, 0.31, 0]} castShadow>
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh geometry={hairBackGeo} position={[0, 0.1, -0.28]} castShadow>
-        <meshStandardMaterial color={color} />
-      </mesh>
-      <mesh geometry={hairBangsGeo} position={[0, 0.23, 0.28]} castShadow>
-        <meshStandardMaterial color={color} />
-      </mesh>
-    </group>
-  );
-}
-
 export function RobloxAvatar({
   position = [0, 0, 0],
   skinColor = "#FFE600",
@@ -63,6 +30,7 @@ export function RobloxAvatar({
   animation = "idle",
   username = "Player",
   chatMessage = "",
+  accessories = { hair: "classic", hat: "none", glasses: "none" },
 }) {
   const leftShoulder = useRef();
   const rightShoulder = useRef();
@@ -129,8 +97,17 @@ export function RobloxAvatar({
         <mesh geometry={headGeo} castShadow>
           <meshStandardMaterial color={skinColor} />
         </mesh>
-        <Face noseColor={skinColor} />
-        <Hair color={hairColor} />
+        <AvatarFace
+          eyes={accessories.eyes}
+          nose={accessories.nose}
+          mouth={accessories.mouth}
+          mustache={accessories.mustache}
+          skinColor={skinColor}
+          hairColor={hairColor}
+        />
+        <Hair type={accessories.hair} color={hairColor} />
+        <Hat type={accessories.hat} />
+        <Glasses type={accessories.glasses} />
       </group>
 
       {/* TORSO */}

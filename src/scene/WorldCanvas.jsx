@@ -5,7 +5,8 @@ import { useAvatarStore } from "../store/useAvatarStore";
 import { HangoutBench } from "./props/HangoutBench";
 
 export function WorldCanvas() {
-  const { username, animation, chatMessage, colors } = useAvatarStore();
+  const { username, animation, chatMessage, colors, accessories } =
+    useAvatarStore();
 
   return (
     <div className="fixed inset-0 h-[100dvh] w-screen touch-none">
@@ -21,6 +22,7 @@ export function WorldCanvas() {
           hairColor={colors.hair}
           shirtColor={colors.shirt}
           pantsColor={colors.pants}
+          accessories={accessories}
         />
         <HangoutBench position={[0, 0, -4]} />
         <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
