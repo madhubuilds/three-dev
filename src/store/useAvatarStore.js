@@ -17,6 +17,7 @@ function clampToRoom(x, z, itemId, rotation) {
 export const useAvatarStore = create(
   persist(
     (set) => ({
+      cameraMode: "iso",
       username: "you",
       animation: "idle",
       chatMessage: "",
@@ -38,7 +39,7 @@ export const useAvatarStore = create(
       bio: "Building cool 3D worlds on the web.",
       status: "Online",
       roomTheme: "cozy",
-
+      setCameraMode: (cameraMode) => set({ cameraMode }),
       setBio: (bio) => set({ bio }),
       setStatus: (status) => set({ status }),
       setRoomTheme: (roomTheme) => set({ roomTheme }),
@@ -101,7 +102,7 @@ export const useAvatarStore = create(
                 item.x + dx,
                 item.z + dz,
                 item.itemId,
-                item.rotation
+                item.rotation,
               );
               return { ...item, x: pos.x, z: pos.z };
             }),
@@ -124,7 +125,7 @@ export const useAvatarStore = create(
       removeSelectedItem: () =>
         set((state) => ({
           placedItems: state.placedItems.filter(
-            (item) => item.instanceId !== state.selectedInstanceId
+            (item) => item.instanceId !== state.selectedInstanceId,
           ),
           selectedInstanceId: null,
         })),
@@ -140,8 +141,8 @@ export const useAvatarStore = create(
         accessories: state.accessories,
         placedItems: state.placedItems,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Non-reactive 60fps bridges

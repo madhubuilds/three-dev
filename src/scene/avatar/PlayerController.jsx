@@ -11,6 +11,8 @@ import {
 const UP_AXIS = new THREE.Vector3(0, 1, 0);
 const targetQuat = new THREE.Quaternion();
 const PLAYER_RADIUS = 0.45;
+const camForward = new THREE.Vector3();
+const camRight = new THREE.Vector3();
 
 function hitsAnyCollider(x, z) {
   for (const box of colliders.values()) {
@@ -23,7 +25,7 @@ function hitsAnyCollider(x, z) {
 
 export function PlayerController({
   speed = 4,
-  bounds = { minX: -6.3, maxX: 17.7, minZ: -6.3, maxZ: 6.3 },
+  bounds = { minX: -6.3, maxX: 6.3, minZ: -6.3, maxZ: 6.3 },
   animation = "idle",
   ...avatarProps
 }) {
@@ -36,6 +38,7 @@ export function PlayerController({
   });
   const wasMoving = useRef(false);
   const [isMoving, setIsMoving] = useState(false);
+
   useEffect(() => {
     playerPosition.x = 0;
     playerPosition.z = 0;
@@ -43,6 +46,7 @@ export function PlayerController({
       playerRef.current.position.set(0, 0, 0);
     }
   }, []);
+
   useEffect(() => {
     const handleKey = (e, isDown) => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
@@ -68,7 +72,7 @@ export function PlayerController({
     };
   }, []);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!playerRef.current) return;
 
     const { forward, backward, left, right } = keys.current;
@@ -93,9 +97,16 @@ export function PlayerController({
         rawZ /= length;
       }
 
-      // Rotate input 45° to match the isometric screen axes
-      const moveX = (rawX + rawZ) * Math.SQRT1_2;
-      const moveZ = (rawZ - rawX) * Math.SQRT1_2;
+      // Derive movement axes directly from active camera orientation
+      state.camera.getWorldDirection(camForward);
+      camForward.y = 0;
+      if (camForward.lengthSq() < 0.0001) camForward.set(-1, 0, -1);
+      camForward.normalize();
+
+      camRight.crossVectors(camForward, UP_AXIS).normalize();
+
+      const moveX = camRight.x * rawX - camForward.x * rawZ;
+      const moveZ = camRight.z * rawX - camForward.z * rawZ;
 
       const step = speed * Math.min(delta, 0.1);
       const currX = playerRef.current.position.x;
@@ -104,7 +115,7 @@ export function PlayerController({
       const nextX = THREE.MathUtils.clamp(
         currX + moveX * step,
         bounds.minX,
-        bounds.maxX,
+        bounds.maxX
       );
       if (!hitsAnyCollider(nextX, currZ)) {
         playerRef.current.position.x = nextX;
@@ -113,11 +124,12 @@ export function PlayerController({
       const nextZ = THREE.MathUtils.clamp(
         currZ + moveZ * step,
         bounds.minZ,
-        bounds.maxZ,
+        bounds.maxZ
       );
       if (!hitsAnyCollider(playerRef.current.position.x, nextZ)) {
         playerRef.current.position.z = nextZ;
       }
+
       playerPosition.x = playerRef.current.position.x;
       playerPosition.z = playerRef.current.position.z;
 

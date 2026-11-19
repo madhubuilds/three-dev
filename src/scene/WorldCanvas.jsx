@@ -21,7 +21,6 @@ export function WorldCanvas() {
     <div className="fixed inset-0 h-[100dvh] w-screen touch-none">
       <Canvas
         shadows
-        orthographic
         dpr={[1, 2]}
         gl={{
           toneMapping: THREE.ACESFilmicToneMapping,
