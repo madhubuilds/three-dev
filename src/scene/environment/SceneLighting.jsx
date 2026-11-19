@@ -7,16 +7,16 @@ export function SceneLighting() {
       <hemisphereLight args={["#FFF3E0", "#B57644", 0.7]} />
 
       {/* Main Window Sunlight (from left/front-left casting soft diagonal shadows) */}
-      <directionalLight
+     <directionalLight
         position={[-8, 15, 7]}
         intensity={1.7}
         color="#FFE2C2"
         castShadow
         shadow-mapSize={[1024, 1024]}
-        shadow-camera-left={-10}
-        shadow-camera-right={10}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
+        shadow-camera-left={-12}
+        shadow-camera-right={22}
+        shadow-camera-top={14}
+        shadow-camera-bottom={-14}
         shadow-bias={-0.0005}
       />
 

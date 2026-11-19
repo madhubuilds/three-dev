@@ -23,7 +23,7 @@ function hitsAnyCollider(x, z) {
 
 export function PlayerController({
   speed = 4,
-  bounds = 6.3,
+  bounds = { minX: -6.3, maxX: 17.7, minZ: -6.3, maxZ: 6.3 },
   animation = "idle",
   ...avatarProps
 }) {
@@ -36,7 +36,13 @@ export function PlayerController({
   });
   const wasMoving = useRef(false);
   const [isMoving, setIsMoving] = useState(false);
-
+  useEffect(() => {
+    playerPosition.x = 0;
+    playerPosition.z = 0;
+    if (playerRef.current) {
+      playerRef.current.position.set(0, 0, 0);
+    }
+  }, []);
   useEffect(() => {
     const handleKey = (e, isDown) => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")
@@ -95,16 +101,23 @@ export function PlayerController({
       const currX = playerRef.current.position.x;
       const currZ = playerRef.current.position.z;
 
-      const nextX = THREE.MathUtils.clamp(currX + moveX * step, -bounds, bounds);
+      const nextX = THREE.MathUtils.clamp(
+        currX + moveX * step,
+        bounds.minX,
+        bounds.maxX,
+      );
       if (!hitsAnyCollider(nextX, currZ)) {
         playerRef.current.position.x = nextX;
       }
 
-      const nextZ = THREE.MathUtils.clamp(currZ + moveZ * step, -bounds, bounds);
+      const nextZ = THREE.MathUtils.clamp(
+        currZ + moveZ * step,
+        bounds.minZ,
+        bounds.maxZ,
+      );
       if (!hitsAnyCollider(playerRef.current.position.x, nextZ)) {
         playerRef.current.position.z = nextZ;
       }
-
       playerPosition.x = playerRef.current.position.x;
       playerPosition.z = playerRef.current.position.z;
 

@@ -1,4 +1,17 @@
 import { create } from "zustand";
+import * as THREE from "three";
+import { getEffectiveExtents } from "../data/roomCatalog";
+
+const ROOM_MIN = -6.75; // Safely inside North & West walls + baseboards
+const ROOM_MAX = 6.75;  // Safely inside South & East floor edges
+
+function clampToRoom(x, z, itemId, rotation) {
+  const { halfW, halfD } = getEffectiveExtents(itemId, rotation);
+  return {
+    x: THREE.MathUtils.clamp(x, ROOM_MIN + halfW, ROOM_MAX - halfW),
+    z: THREE.MathUtils.clamp(z, ROOM_MIN + halfD, ROOM_MAX - halfD),
+  };
+}
 
 export const useAvatarStore = create((set) => ({
   username: "you",
@@ -30,6 +43,7 @@ export const useAvatarStore = create((set) => ({
     set((state) => ({
       accessories: { ...state.accessories, [slot]: value },
     })),
+
   // Interaction state
   nearbyProp: null, // Pop-up button when standing close
   activeProp: null, // Full modal when user taps the button
@@ -42,6 +56,75 @@ export const useAvatarStore = create((set) => ({
   setChatMessage: (chatMessage) => set({ chatMessage }),
   setNearbyProp: (nearbyProp) => set({ nearbyProp }),
   setActiveProp: (activeProp) => set({ activeProp }),
+
+  // Room Decor Inventory & Placement
+  isDecorating: false,
+  setIsDecorating: (isDecorating) =>
+    set({ isDecorating, selectedInstanceId: null }),
+
+  selectedInstanceId: null,
+  selectRoomItem: (selectedInstanceId) => set({ selectedInstanceId }),
+
+  placedItems: [
+    {
+      instanceId: "starter-lamp",
+      itemId: "lamp-floor",
+      x: 5.4,
+      z: -5.4,
+      rotation: 0,
+    },
+  ],
+
+  addRoomItem: (itemId) =>
+    set((state) => {
+      const instanceId = `${itemId}-${Date.now()}`;
+      const pos = clampToRoom(0.4, 1.2, itemId, 0);
+      return {
+        placedItems: [
+          ...state.placedItems,
+          { instanceId, itemId, x: pos.x, z: pos.z, rotation: 0 },
+        ],
+        selectedInstanceId: instanceId,
+      };
+    }),
+
+  moveSelectedItem: (dx, dz) =>
+    set((state) => {
+      if (!state.selectedInstanceId) return state;
+      return {
+        placedItems: state.placedItems.map((item) => {
+          if (item.instanceId !== state.selectedInstanceId) return item;
+          const pos = clampToRoom(
+            item.x + dx,
+            item.z + dz,
+            item.itemId,
+            item.rotation
+          );
+          return { ...item, x: pos.x, z: pos.z };
+        }),
+      };
+    }),
+
+  rotateSelectedItem: () =>
+    set((state) => {
+      if (!state.selectedInstanceId) return state;
+      return {
+        placedItems: state.placedItems.map((item) => {
+          if (item.instanceId !== state.selectedInstanceId) return item;
+          const nextRot = (item.rotation + 1) % 4;
+          const pos = clampToRoom(item.x, item.z, item.itemId, nextRot);
+          return { ...item, x: pos.x, z: pos.z, rotation: nextRot };
+        }),
+      };
+    }),
+
+  removeSelectedItem: () =>
+    set((state) => ({
+      placedItems: state.placedItems.filter(
+        (item) => item.instanceId !== state.selectedInstanceId
+      ),
+      selectedInstanceId: null,
+    })),
 }));
 
 // Non-reactive 60fps bridges
