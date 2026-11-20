@@ -148,6 +148,18 @@ export const useAvatarStore = create(
 // Non-reactive 60fps bridges
 export const joystickInput = { x: 0, y: 0 };
 export const playerPosition = { x: 0, z: 0 };
+export const walkTarget = { active: false, x: 0, z: 0 };
+
+export const setWalkTarget = (x, z) => {
+  walkTarget.active = true;
+  walkTarget.x = x;
+  walkTarget.z = z;
+};
+
+export const clearWalkTarget = () => {
+  walkTarget.active = false;
+};
+
 export const colliders = new Map();
 export const registerCollider = (id, box) => colliders.set(id, box);
 export const unregisterCollider = (id) => colliders.delete(id);

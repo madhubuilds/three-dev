@@ -5,6 +5,8 @@ import { RobloxAvatar } from "./RobloxAvatar";
 import {
   joystickInput,
   playerPosition,
+  walkTarget,
+  clearWalkTarget,
   colliders,
 } from "../../store/useAvatarStore";
 
@@ -42,6 +44,7 @@ export function PlayerController({
   useEffect(() => {
     playerPosition.x = 0;
     playerPosition.z = 0;
+    clearWalkTarget();
     if (playerRef.current) {
       playerRef.current.position.set(0, 0, 0);
     }
@@ -80,24 +83,30 @@ export function PlayerController({
     const keyZ = (backward ? 1 : 0) - (forward ? 1 : 0);
 
     const hasJoy = Math.hypot(joystickInput.x, joystickInput.y) > 0.1;
-    let rawX = hasJoy ? joystickInput.x : keyX;
-    let rawZ = hasJoy ? joystickInput.y : keyZ;
+    const rawX = hasJoy ? joystickInput.x : keyX;
+    const rawZ = hasJoy ? joystickInput.y : keyZ;
+    const hasManualInput = rawX !== 0 || rawZ !== 0;
 
-    const movingNow = rawX !== 0 || rawZ !== 0;
+    const currX = playerRef.current.position.x;
+    const currZ = playerRef.current.position.z;
 
-    if (movingNow !== wasMoving.current) {
-      wasMoving.current = movingNow;
-      setIsMoving(movingNow);
-    }
+    let moveX = 0;
+    let moveZ = 0;
+    let isAutoWalk = false;
+    let remainingDist = 0;
 
-    if (movingNow) {
-      const length = Math.hypot(rawX, rawZ);
+    if (hasManualInput) {
+      // Manual input immediately overrides tap-to-walk
+      if (walkTarget.active) clearWalkTarget();
+
+      let normX = rawX;
+      let normZ = rawZ;
+      const length = Math.hypot(normX, normZ);
       if (length > 1) {
-        rawX /= length;
-        rawZ /= length;
+        normX /= length;
+        normZ /= length;
       }
 
-      // Derive movement axes directly from active camera orientation
       state.camera.getWorldDirection(camForward);
       camForward.y = 0;
       if (camForward.lengthSq() < 0.0001) camForward.set(-1, 0, -1);
@@ -105,12 +114,34 @@ export function PlayerController({
 
       camRight.crossVectors(camForward, UP_AXIS).normalize();
 
-      const moveX = camRight.x * rawX - camForward.x * rawZ;
-      const moveZ = camRight.z * rawX - camForward.z * rawZ;
+      moveX = camRight.x * normX - camForward.x * normZ;
+      moveZ = camRight.z * normX - camForward.z * normZ;
+    } else if (walkTarget.active) {
+      const dx = walkTarget.x - currX;
+      const dz = walkTarget.z - currZ;
+      remainingDist = Math.hypot(dx, dz);
 
-      const step = speed * Math.min(delta, 0.1);
-      const currX = playerRef.current.position.x;
-      const currZ = playerRef.current.position.z;
+      if (remainingDist <= 0.08) {
+        clearWalkTarget();
+      } else {
+        moveX = dx / remainingDist;
+        moveZ = dz / remainingDist;
+        isAutoWalk = true;
+      }
+    }
+
+    const movingNow = moveX !== 0 || moveZ !== 0;
+
+    if (movingNow !== wasMoving.current) {
+      wasMoving.current = movingNow;
+      setIsMoving(movingNow);
+    }
+
+    if (movingNow) {
+      const baseStep = speed * Math.min(delta, 0.1);
+      const step = isAutoWalk ? Math.min(baseStep, remainingDist) : baseStep;
+
+      let moved = false;
 
       const nextX = THREE.MathUtils.clamp(
         currX + moveX * step,
@@ -119,6 +150,7 @@ export function PlayerController({
       );
       if (!hitsAnyCollider(nextX, currZ)) {
         playerRef.current.position.x = nextX;
+        if (Math.abs(nextX - currX) > 0.0001) moved = true;
       }
 
       const nextZ = THREE.MathUtils.clamp(
@@ -128,6 +160,15 @@ export function PlayerController({
       );
       if (!hitsAnyCollider(playerRef.current.position.x, nextZ)) {
         playerRef.current.position.z = nextZ;
+        if (Math.abs(nextZ - currZ) > 0.0001) moved = true;
+      }
+
+      // Stop auto-walk cleanly if blocked by furniture/NPC
+      if (isAutoWalk && !moved) {
+        clearWalkTarget();
+        wasMoving.current = false;
+        setIsMoving(false);
+        return;
       }
 
       playerPosition.x = playerRef.current.position.x;

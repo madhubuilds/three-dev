@@ -12,6 +12,7 @@ import { WallDecor } from "./props/WallDecor";
 import { WallBioBoard } from "./props/WallBioBoard";
 import { PlacedFurnitureLayer } from "./props/RoomFurniture";
 import { useAvatarStore } from "../store/useAvatarStore";
+import { TapToWalkFloor } from "./environment/TapToWalkFloor";
 
 export function WorldCanvas() {
   const { username, animation, chatMessage, colors, accessories } =
@@ -30,6 +31,9 @@ export function WorldCanvas() {
       >
         <SceneLighting />
         <ProfileRoom />
+        <TapToWalkFloor
+          bounds={{ minX: -6.3, maxX: 6.3, minZ: -6.3, maxZ: 6.3 }}
+        />
         <WallDecor />
         <WallBioBoard />
         <PlacedFurnitureLayer />

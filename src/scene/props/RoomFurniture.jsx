@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { useAvatarStore } from "../../store/useAvatarStore";
+import { LowPolyMesh } from "./LowPolyAssets";
 import { getEffectiveExtents, FURNITURE_SCALE } from "../../data/roomCatalog";
 import { useCollider } from "../hooks/useCollider";
-
 // Shared Geometries
 const sofaBaseGeo = new THREE.BoxGeometry(2.2, 0.36, 1.0);
 const sofaBackGeo = new THREE.BoxGeometry(2.2, 0.55, 0.24);
@@ -45,7 +45,10 @@ const arcadeScreenGeo = new THREE.BoxGeometry(0.64, 0.48, 0.06);
 
 const selectRingGeo = new THREE.RingGeometry(0.85, 1.02, 32);
 
-function FurnitureMesh({ itemId }) {
+
+export function FurnitureMesh({ itemId }) {
+  const lowPoly = LowPolyMesh({ itemId });
+  if (lowPoly) return lowPoly;
   switch (itemId) {
     case "sofa-cozy":
     case "sofa-navy": {
@@ -348,6 +351,7 @@ function PlacedItemNode({ item }) {
 
   const isSelected = isDecorating && selectedInstanceId === item.instanceId;
   const { halfW, halfD } = getEffectiveExtents(item.itemId, item.rotation);
+  useCollider(item.instanceId, item.x, item.z, halfW, halfD);
 
   // Automatically registers & updates solid AABB collision when moved or rotated
   useCollider(item.instanceId, item.x, item.z, halfW, halfD);

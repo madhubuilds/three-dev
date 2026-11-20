@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { useCollider } from "../hooks/useCollider";
+import { TapToWalkFloor } from "./TapToWalkFloor";
 
 // Shared Geometries
 const plazaBaseGeo = new THREE.BoxGeometry(18.0, 0.4, 18.0);
@@ -21,7 +22,12 @@ function PlazaTree({ id, position }) {
 
   return (
     <group position={position}>
-      <mesh geometry={trunkGeo} position={[0, 0.55, 0]} castShadow receiveShadow>
+      <mesh
+        geometry={trunkGeo}
+        position={[0, 0.55, 0]}
+        castShadow
+        receiveShadow
+      >
         <meshStandardMaterial color="#7C4722" roughness={0.9} />
       </mesh>
       <mesh geometry={foliageLowGeo} position={[0, 1.35, 0]} castShadow>
@@ -89,19 +95,41 @@ export function OpenPlaza() {
       </mesh>
 
       {/* Low Perimeter Curbs on All 4 Sides */}
-      <mesh geometry={curbHorizontalGeo} position={[0, 0.18, -8.9]} castShadow receiveShadow>
+      <mesh
+        geometry={curbHorizontalGeo}
+        position={[0, 0.18, -8.9]}
+        castShadow
+        receiveShadow
+      >
         <meshStandardMaterial color="#9E5326" roughness={0.85} />
       </mesh>
-      <mesh geometry={curbHorizontalGeo} position={[0, 0.18, 8.9]} castShadow receiveShadow>
+      <mesh
+        geometry={curbHorizontalGeo}
+        position={[0, 0.18, 8.9]}
+        castShadow
+        receiveShadow
+      >
         <meshStandardMaterial color="#9E5326" roughness={0.85} />
       </mesh>
-      <mesh geometry={curbVerticalGeo} position={[-8.9, 0.18, 0]} castShadow receiveShadow>
+      <mesh
+        geometry={curbVerticalGeo}
+        position={[-8.9, 0.18, 0]}
+        castShadow
+        receiveShadow
+      >
         <meshStandardMaterial color="#9E5326" roughness={0.85} />
       </mesh>
-      <mesh geometry={curbVerticalGeo} position={[8.9, 0.18, 0]} castShadow receiveShadow>
+      <mesh
+        geometry={curbVerticalGeo}
+        position={[8.9, 0.18, 0]}
+        castShadow
+        receiveShadow
+      >
         <meshStandardMaterial color="#9E5326" roughness={0.85} />
       </mesh>
-
+      <TapToWalkFloor
+        bounds={{ minX: -8.0, maxX: 8.0, minZ: -8.0, maxZ: 8.0 }}
+      />
       {/* Corner Trees & Warm Lanterns */}
       <PlazaTree id="plaza-tree-nw" position={[-7.2, 0, -7.2]} />
       <PlazaTree id="plaza-tree-ne" position={[7.2, 0, -7.2]} />
