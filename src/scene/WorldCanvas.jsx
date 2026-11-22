@@ -12,7 +12,7 @@ import { WallDecor } from "./props/WallDecor";
 import { WallBioBoard } from "./props/WallBioBoard";
 import { PlacedFurnitureLayer } from "./props/RoomFurniture";
 import { useAvatarStore } from "../store/useAvatarStore";
-import { TapToWalkFloor } from "./environment/TapToWalkFloor";
+import { TapToWalkFloor } from "./environment/TapToWalkFloor"; 
 
 export function WorldCanvas() {
   const { username, animation, chatMessage, colors, accessories } =
@@ -54,8 +54,7 @@ export function WorldCanvas() {
         <ProfileDesk position={[-3.2, 0, -5.5]} />
         <HangoutBench position={[3.2, 0, -5.2]} />
         <IndoorPlant id="plant-nw" position={[-5.9, 0, -5.9]} />
-        <IndoorPlant id="plant-sw" position={[-5.9, 0, 5.5]} />
-
+        <IndoorPlant id="plant-sw" position={[-5.9, 0, 5.5]} /> 
         <ContactShadows
           position={[0, 0.01, 0]}
           opacity={0.5}

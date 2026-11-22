@@ -8,6 +8,7 @@ import {
 } from "@react-three/drei";
 import * as THREE from "three";
 import { playerPosition, useAvatarStore } from "../../store/useAvatarStore";
+import { useDevBuilderStore } from "../../store/useDevBuilderStore";
 
 const DEFAULT_PAN = { minX: -4.5, maxX: 4.5, minZ: -4.5, maxZ: 4.5 };
 const followCamGoal = new THREE.Vector3();
@@ -17,6 +18,7 @@ export function IsometricCameraRig({ panBounds = DEFAULT_PAN }) {
   const cameraMode = useAvatarStore((s) => s.cameraMode);
   const controlsRef = useRef();
   const lastPlayer = useRef({ x: 0, z: 0 });
+  const isDraggingGizmo = useDevBuilderStore((s) => s.isDraggingGizmo);
 
   useEffect(() => {
     if (controlsRef.current) {

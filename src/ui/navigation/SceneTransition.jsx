@@ -6,6 +6,7 @@ const ROUTE_META = {
   "/": { label: "Entering Profile Room...", icon: Home },
   "/plaza": { label: "Stepping into Town Plaza...", icon: Users },
   "/avatar": { label: "Opening Avatar Studio...", icon: Sparkles },
+  "/builder": { label: "Opening 3D Workbench...", icon: Sparkles },
 };
 
 export function SceneTransition() {

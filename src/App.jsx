@@ -3,6 +3,7 @@ import { WorldPage } from "./pages/WorldPage";
 import { PlazaPage } from "./pages/PlazaPage";
 import { AvatarStudioPage } from "./pages/AvatarStudioPage";
 import { SceneTransition } from "./ui/navigation/SceneTransition";
+import { DevBuilderPage } from "./pages/DevBuilderPage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<WorldPage />} />
         <Route path="/plaza" element={<PlazaPage />} />
         <Route path="/avatar" element={<AvatarStudioPage />} />
+        <Route path="/builder" element={<DevBuilderPage />} />
       </Routes>
     </>
   );

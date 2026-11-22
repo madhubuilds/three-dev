@@ -8,7 +8,7 @@ import { PlayerController } from "./avatar/PlayerController";
 import { PlazaNPC } from "./avatar/PlazaNPC";
 import { HangoutBench } from "./props/HangoutBench";
 import { useAvatarStore } from "../store/useAvatarStore";
-
+import { DevWorldBuilder } from "./dev/DevWorldBuilder";
 export function PlazaCanvas() {
   const { username, animation, chatMessage, colors, accessories } =
     useAvatarStore();
@@ -101,8 +101,7 @@ export function PlazaCanvas() {
           }}
         />
 
-        <HangoutBench position={[0, 0, -6.2]} />
-
+        <HangoutBench position={[0, 0, -6.2]} /> 
         <ContactShadows
           position={[0, 0.01, 0]}
           opacity={0.45}
