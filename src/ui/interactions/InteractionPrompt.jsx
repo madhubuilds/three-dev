@@ -19,7 +19,9 @@ export function InteractionPrompt() {
     activeProp,
     setActiveProp,
   } = useAvatarStore();
-
+  const isSitting = useAvatarStore((s) => s.isSitting);
+  const sitAt = useAvatarStore((s) => s.sitAt);
+  const standUp = useAvatarStore((s) => s.standUp);
   const [lineIndex, setLineIndex] = useState(0);
 
   useEffect(() => {
@@ -95,7 +97,36 @@ export function InteractionPrompt() {
           </div>
         </div>
       )}
-
+      {/* Bottom-Right Contextual Action or Stand-Up Pill */}
+      {isSitting ? (
+        <button
+          onClick={standUp}
+          className="pointer-events-auto fixed right-5 bottom-24 z-20 flex items-center gap-2 rounded-full border border-white/60 bg-[#17233F] px-4 py-3 text-xs font-bold text-white shadow-[0_10px_25px_rgba(23,35,63,0.3)] transition active:scale-95"
+        >
+          <span>Stand Up</span>
+        </button>
+      ) : (
+        nearbyProp &&
+        !activeProp && (
+          <button
+            onClick={() => {
+              if (nearbyProp.type === "seat" && nearbyProp.seatData) {
+                sitAt(nearbyProp.seatData);
+              } else {
+                setActiveProp(nearbyProp);
+              }
+            }}
+            className="pointer-events-auto fixed right-5 bottom-24 z-20 flex items-center gap-2 rounded-full border border-white/40 bg-[#FF5A1F] px-4 py-3 text-xs font-bold text-white shadow-[0_10px_25px_rgba(255,90,31,0.38)] transition active:scale-95"
+          >
+            {nearbyProp.type === "npc" ? (
+              <MessageSquare size={15} />
+            ) : (
+              <Sparkles size={15} />
+            )}
+            <span>{nearbyProp.actionLabel}</span>
+          </button>
+        )
+      )}
       {/* Profile Card Modal */}
       {activeProp?.type === "profile" && (
         <div className="pointer-events-auto fixed inset-0 z-30 flex items-center justify-center bg-[#17233F]/30 p-4 backdrop-blur-[2px]">

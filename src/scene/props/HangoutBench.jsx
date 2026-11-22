@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import {
   playerPosition,
-  useAvatarStore, 
+  useAvatarStore,
   registerCollider,
   unregisterCollider,
 } from "../../store/useAvatarStore";
@@ -18,24 +18,39 @@ export function HangoutBench({
   id = "bench-1",
   position = [0, 0, -4],
   rotation = [0, 0, 0],
-  title = "Chai & Chill Spot",
-  description = "A quiet corner to hang out, chat with nearby players, and check local events.",
-  actionLabel = "Check Spot",
+  actionLabel = "Sit on Bench",
   interactRadius = 2.4,
 }) {
   const isNearRef = useRef(false);
   const [isNear, setIsNear] = useState(false);
+
   // Register solid footprint when mounted, clean up when unmounted
   useEffect(() => {
+    const isRotated = Math.round(Math.abs(rotation[1] || 0) / (Math.PI / 2)) % 2 === 1;
     registerCollider(id, {
       x: position[0],
       z: position[2],
-      halfW: 1.1,
-      halfD: 0.38,
+      halfW: isRotated ? 0.38 : 1.1,
+      halfD: isRotated ? 1.1 : 0.38,
     });
     return () => unregisterCollider(id);
-  }, [id, position[0], position[2]]);
+  }, [id, position[0], position[2], rotation[1]]);
+
   useFrame(() => {
+    const store = useAvatarStore.getState();
+
+    // Hide prompt while decorating or already seated
+    if (store.isDecorating || store.isSitting) {
+      if (isNearRef.current) {
+        isNearRef.current = false;
+        setIsNear(false);
+        if (store.nearbyProp?.id === id) {
+          store.setNearbyProp(null);
+        }
+      }
+      return;
+    }
+
     const dx = playerPosition.x - position[0];
     const dz = playerPosition.z - position[2];
     const dist = Math.hypot(dx, dz);
@@ -46,9 +61,20 @@ export function HangoutBench({
       isNearRef.current = nearNow;
       setIsNear(nearNow);
 
-      const store = useAvatarStore.getState();
       if (nearNow) {
-        store.setNearbyProp({ id, title, description, actionLabel });
+        const rotY = rotation[1] || 0;
+        store.setNearbyProp({
+          id,
+          type: "seat",
+          actionLabel,
+          seatData: {
+            x: position[0] + Math.sin(rotY) * 0.06,
+            y: -0.02,
+            z: position[2] + Math.cos(rotY) * 0.06,
+            rotY,
+            exitOffset: 1.15,
+          },
+        });
       } else if (store.nearbyProp?.id === id) {
         store.setNearbyProp(null);
       }

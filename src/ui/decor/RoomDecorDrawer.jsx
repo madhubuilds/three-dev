@@ -48,6 +48,7 @@ export function RoomDecorDrawer() {
     isDecorating,
     placedItems,
     selectedInstanceId,
+    selectRoomItem,
     addRoomItem,
     moveSelectedItem,
     rotateSelectedItem,
@@ -57,7 +58,7 @@ export function RoomDecorDrawer() {
   if (!isDecorating) return null;
 
   const selectedItem = placedItems.find(
-    (i) => i.instanceId === selectedInstanceId
+    (i) => i.instanceId === selectedInstanceId,
   );
   const selectedMeta = selectedItem
     ? getCatalogItem(selectedItem.itemId)
@@ -66,14 +67,37 @@ export function RoomDecorDrawer() {
   const visibleItems = ROOM_ITEMS.filter(
     (item) =>
       item.category === activeTab &&
-      (styleFilter === "all" || item.style === styleFilter)
+      (styleFilter === "all" || item.style === styleFilter),
   );
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 flex flex-col items-center">
       {/* One-shot offscreen snapshotter (unmounts automatically once all 18 items cache) */}
       {isCapturing && <FurnitureThumbnailGenerator />}
-
+      {placedItems.length > 0 && (
+        <div className="pointer-events-auto mb-2 flex w-[calc(100%-1.5rem)] max-w-md items-center gap-1.5 overflow-x-auto rounded-full border border-white/70 bg-white/85 px-2.5 py-1.5 shadow-[0_8px_20px_rgba(23,35,63,0.14)] backdrop-blur-md">
+          <span className="shrink-0 pl-1 text-[10px] font-bold uppercase tracking-wider text-[#17233F]/50">
+            Placed:
+          </span>
+          {placedItems.map((item) => {
+            const meta = getCatalogItem(item.itemId);
+            const active = item.instanceId === selectedInstanceId;
+            return (
+              <button
+                key={item.instanceId}
+                onClick={() => selectRoomItem(item.instanceId)}
+                className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
+                  active
+                    ? "bg-[#FF5A1F] text-white shadow-sm"
+                    : "bg-[#17233F]/6 text-[#17233F]/75 hover:bg-[#17233F]/12"
+                }`}
+              >
+                {meta?.label || item.itemId}
+              </button>
+            );
+          })}
+        </div>
+      )}
       {/* Floating Move & 90° Rotate Bar */}
       {selectedItem && (
         <div className="pointer-events-auto mb-2.5 w-[calc(100%-1.5rem)] max-w-md rounded-2xl border border-white/70 bg-white/90 p-2.5 shadow-[0_12px_30px_rgba(23,35,63,0.18)] backdrop-blur-md">

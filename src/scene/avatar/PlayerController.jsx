@@ -8,6 +8,7 @@ import {
   walkTarget,
   clearWalkTarget,
   colliders,
+  useAvatarStore,
 } from "../../store/useAvatarStore";
 
 const UP_AXIS = new THREE.Vector3(0, 1, 0);
@@ -32,6 +33,13 @@ export function PlayerController({
   ...avatarProps
 }) {
   const playerRef = useRef();
+  const wasSitting = useRef(false);
+  const lastSeat = useRef(null);
+
+  const isSitting = useAvatarStore((s) => s.isSitting);
+  const seatTransform = useAvatarStore((s) => s.seatTransform);
+  const standUp = useAvatarStore((s) => s.standUp);
+
   const keys = useRef({
     forward: false,
     backward: false,
@@ -45,10 +53,51 @@ export function PlayerController({
     playerPosition.x = 0;
     playerPosition.z = 0;
     clearWalkTarget();
+    standUp();
     if (playerRef.current) {
       playerRef.current.position.set(0, 0, 0);
     }
-  }, []);
+  }, [standUp]);
+
+  // Step forward out of sofa collider when standing up from furniture
+  useEffect(() => {
+    if (
+      wasSitting.current &&
+      !isSitting &&
+      lastSeat.current &&
+      playerRef.current
+    ) {
+      const { x, z, rotY, exitOffset } = lastSeat.current;
+      const exitX = THREE.MathUtils.clamp(
+        x + Math.sin(rotY) * exitOffset,
+        bounds.minX,
+        bounds.maxX,
+      );
+      const exitZ = THREE.MathUtils.clamp(
+        z + Math.cos(rotY) * exitOffset,
+        bounds.minZ,
+        bounds.maxZ,
+      );
+
+      playerRef.current.position.set(exitX, 0, exitZ);
+      playerPosition.x = exitX;
+      playerPosition.z = exitZ;
+    }
+
+    if (!isSitting && playerRef.current) {
+      playerRef.current.position.y = 0;
+    }
+
+    wasSitting.current = isSitting;
+    if (seatTransform) lastSeat.current = seatTransform;
+  }, [
+    isSitting,
+    seatTransform,
+    bounds.minX,
+    bounds.maxX,
+    bounds.minZ,
+    bounds.maxZ,
+  ]);
 
   useEffect(() => {
     const handleKey = (e, isDown) => {
@@ -87,6 +136,36 @@ export function PlayerController({
     const rawZ = hasJoy ? joystickInput.y : keyZ;
     const hasManualInput = rawX !== 0 || rawZ !== 0;
 
+    // While seated, hold position on seat unless player initiates movement
+    if (isSitting) {
+      if (hasManualInput || walkTarget.active) {
+        standUp();
+        return;
+      }
+
+      if (seatTransform) {
+        playerRef.current.position.set(
+          seatTransform.x,
+          seatTransform.y,
+          seatTransform.z,
+        );
+        playerPosition.x = seatTransform.x;
+        playerPosition.z = seatTransform.z;
+
+        targetQuat.setFromAxisAngle(UP_AXIS, seatTransform.rotY);
+        playerRef.current.quaternion.slerp(targetQuat, 0.25);
+      } else {
+        // Seated on floor via quick emote
+        playerRef.current.position.y = -0.65;
+      }
+
+      if (wasMoving.current) {
+        wasMoving.current = false;
+        setIsMoving(false);
+      }
+      return;
+    }
+
     const currX = playerRef.current.position.x;
     const currZ = playerRef.current.position.z;
 
@@ -96,7 +175,6 @@ export function PlayerController({
     let remainingDist = 0;
 
     if (hasManualInput) {
-      // Manual input immediately overrides tap-to-walk
       if (walkTarget.active) clearWalkTarget();
 
       let normX = rawX;
@@ -146,7 +224,7 @@ export function PlayerController({
       const nextX = THREE.MathUtils.clamp(
         currX + moveX * step,
         bounds.minX,
-        bounds.maxX
+        bounds.maxX,
       );
       if (!hitsAnyCollider(nextX, currZ)) {
         playerRef.current.position.x = nextX;
@@ -156,14 +234,13 @@ export function PlayerController({
       const nextZ = THREE.MathUtils.clamp(
         currZ + moveZ * step,
         bounds.minZ,
-        bounds.maxZ
+        bounds.maxZ,
       );
       if (!hitsAnyCollider(playerRef.current.position.x, nextZ)) {
         playerRef.current.position.z = nextZ;
         if (Math.abs(nextZ - currZ) > 0.0001) moved = true;
       }
 
-      // Stop auto-walk cleanly if blocked by furniture/NPC
       if (isAutoWalk && !moved) {
         clearWalkTarget();
         wasMoving.current = false;
@@ -184,7 +261,7 @@ export function PlayerController({
     <group ref={playerRef}>
       <RobloxAvatar
         {...avatarProps}
-        animation={isMoving ? "walk" : animation}
+        animation={isMoving ? "walk" : isSitting ? "sit" : animation}
       />
     </group>
   );

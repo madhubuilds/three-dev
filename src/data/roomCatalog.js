@@ -7,6 +7,7 @@ export const ROOM_CATEGORIES = [
 
 export const ROOM_ITEMS = [
   // SOFAS
+  // SOFAS
   {
     id: "sofa-cozy",
     category: "sofa",
@@ -14,6 +15,8 @@ export const ROOM_ITEMS = [
     label: "Cozy Sofa",
     halfW: 1.15,
     halfD: 0.55,
+    seatHeight: 0.03,
+    exitOffset: 1.35,
   },
   {
     id: "sofa-cloud-lp",
@@ -22,6 +25,8 @@ export const ROOM_ITEMS = [
     label: "Cloud Lounger",
     halfW: 1.05,
     halfD: 0.5,
+    seatHeight: 0.08,
+    exitOffset: 1.3,
   },
   {
     id: "sofa-navy",
@@ -30,6 +35,8 @@ export const ROOM_ITEMS = [
     label: "Navy Lounge",
     halfW: 1.15,
     halfD: 0.55,
+    seatHeight: 0.03,
+    exitOffset: 1.35,
   },
   {
     id: "pouf-pebble-lp",
@@ -38,6 +45,8 @@ export const ROOM_ITEMS = [
     label: "Pebble Pouf",
     halfW: 0.5,
     halfD: 0.5,
+    seatHeight: 0.3,
+    exitOffset: 1.25,
   },
   {
     id: "pouf-yellow",
@@ -46,6 +55,8 @@ export const ROOM_ITEMS = [
     label: "Yellow Pouf",
     halfW: 0.55,
     halfD: 0.55,
+    seatHeight: 0.12,
+    exitOffset: 1.3,
   },
 
   // PLANTS

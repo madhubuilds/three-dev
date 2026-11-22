@@ -36,6 +36,8 @@ export const useAvatarStore = create(
         mouth: "smile",
         mustache: "none",
       },
+      isSitting: false,
+      seatTransform: null,
       bio: "Building cool 3D worlds on the web.",
       status: "Online",
       roomTheme: "cozy",
@@ -47,7 +49,10 @@ export const useAvatarStore = create(
         set((state) => ({
           accessories: { ...state.accessories, [slot]: value },
         })),
-
+      selectedInstanceId: null,
+      selectRoomItem: (selectedInstanceId) => set({ selectedInstanceId }),
+      setSelectedInstanceId: (selectedInstanceId) =>
+        set({ selectedInstanceId }),
       // Interaction state
       nearbyProp: null,
       activeProp: null,
@@ -64,11 +69,12 @@ export const useAvatarStore = create(
       // Room Decor Inventory & Placement
       isDecorating: false,
       setIsDecorating: (isDecorating) =>
-        set({ isDecorating, selectedInstanceId: null }),
-
-      selectedInstanceId: null,
-      selectRoomItem: (selectedInstanceId) => set({ selectedInstanceId }),
-
+        set((state) => ({
+          isDecorating,
+          selectedInstanceId: null,
+          isSitting: isDecorating ? false : state.isSitting,
+          animation: isDecorating && state.isSitting ? "idle" : state.animation,
+        })),
       placedItems: [
         {
           instanceId: "starter-lamp",
@@ -78,7 +84,41 @@ export const useAvatarStore = create(
           rotation: 0,
         },
       ],
+      sitAt: ({ x, y = 0.55, z, rotY = 0, exitOffset = 1.3 }) => {
+        clearWalkTarget();
+        set({
+          isSitting: true,
+          seatTransform: { x, y, z, rotY, exitOffset },
+          animation: "sit",
+          nearbyProp: null,
+          activeProp: null,
+        });
+      },
 
+      standUp: () =>
+        set((state) => {
+          if (!state.isSitting) return state;
+          return {
+            isSitting: false,
+            animation: "idle",
+          };
+        }),
+
+      triggerEmote: (emote) =>
+        set((state) => {
+          if (emote === "sit") {
+            return {
+              isSitting: true,
+              seatTransform: null, // Floor sit in place
+              animation: "sit",
+            };
+          }
+          return {
+            isSitting: false,
+            seatTransform: null,
+            animation: emote,
+          };
+        }),
       addRoomItem: (itemId) =>
         set((state) => {
           const instanceId = `${itemId}-${Date.now()}`;

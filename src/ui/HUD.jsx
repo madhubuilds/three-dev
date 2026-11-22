@@ -4,7 +4,7 @@ import { Joystick } from "./controls/Joystick";
 import { InteractionPrompt } from "./interactions/InteractionPrompt";
 import { RoomDecorDrawer } from "./decor/RoomDecorDrawer";
 import { useAvatarStore } from "../store/useAvatarStore";
-
+import { QuickEmoteBar } from "./controls/QuickEmoteBar";
 export function HUD() {
   const isDecorating = useAvatarStore((s) => s.isDecorating);
 
@@ -17,7 +17,8 @@ export function HUD() {
       </div>
 
       <div className={isDecorating ? "hidden" : "block"}>
-        <Joystick />
+     <Joystick />
+        <QuickEmoteBar />
         <InteractionPrompt />
         <BottomNav />
       </div>

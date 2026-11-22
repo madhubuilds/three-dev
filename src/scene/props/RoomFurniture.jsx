@@ -1,7 +1,13 @@
 import * as THREE from "three";
-import { useAvatarStore } from "../../store/useAvatarStore";
+import { useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import {
+  FURNITURE_SCALE,
+  getCatalogItem,
+  getEffectiveExtents,
+} from "../../data/roomCatalog";
+import { playerPosition, useAvatarStore } from "../../store/useAvatarStore";
 import { LowPolyMesh } from "./LowPolyAssets";
-import { getEffectiveExtents, FURNITURE_SCALE } from "../../data/roomCatalog";
 import { useCollider } from "../hooks/useCollider";
 // Shared Geometries
 const sofaBaseGeo = new THREE.BoxGeometry(2.2, 0.36, 1.0);
@@ -44,7 +50,6 @@ const arcadeBodyGeo = new THREE.BoxGeometry(0.85, 1.65, 0.85);
 const arcadeScreenGeo = new THREE.BoxGeometry(0.64, 0.48, 0.06);
 
 const selectRingGeo = new THREE.RingGeometry(0.85, 1.02, 32);
-
 
 export function FurnitureMesh({ itemId }) {
   const lowPoly = LowPolyMesh({ itemId });
@@ -346,36 +351,78 @@ export function FurnitureMesh({ itemId }) {
 
 function PlacedItemNode({ item }) {
   const isDecorating = useAvatarStore((s) => s.isDecorating);
-  const selectedInstanceId = useAvatarStore((s) => s.selectedInstanceId);
-  const selectRoomItem = useAvatarStore((s) => s.selectRoomItem);
+  const selectedInstanceId = useAvatarStore((s) => s.selectedInstanceId); 
 
   const isSelected = isDecorating && selectedInstanceId === item.instanceId;
+  const meta = getCatalogItem(item.itemId);
+  const nearSeatRef = useRef(false);
+  const selectRoomItem = useAvatarStore(
+    (s) => s.selectRoomItem || s.setSelectedInstanceId,
+  );
   const { halfW, halfD } = getEffectiveExtents(item.itemId, item.rotation);
   useCollider(item.instanceId, item.x, item.z, halfW, halfD);
 
-  // Automatically registers & updates solid AABB collision when moved or rotated
-  useCollider(item.instanceId, item.x, item.z, halfW, halfD);
+  useFrame(() => {
+    if (!meta?.seatHeight && meta?.seatHeight !== 0) return;
+    const store = useAvatarStore.getState();
+
+    if (store.isDecorating || store.isSitting) {
+      if (nearSeatRef.current) {
+        nearSeatRef.current = false;
+        if (store.nearbyProp?.id === item.instanceId) {
+          store.setNearbyProp(null);
+        }
+      }
+      return;
+    }
+
+    const dist = Math.hypot(
+      playerPosition.x - item.x,
+      playerPosition.z - item.z,
+    );
+    const isNear = dist <= 2.3;
+
+    if (isNear !== nearSeatRef.current) {
+      nearSeatRef.current = isNear;
+      if (isNear) {
+        store.setNearbyProp({
+          id: item.instanceId,
+          type: "seat",
+          actionLabel: `Sit on ${meta.label}`,
+          seatData: {
+            x: item.x,
+            y: meta.seatHeight,
+            z: item.z,
+            rotY: (item.rotation || 0) * (Math.PI / 2),
+            exitOffset: meta.exitOffset || 1.3,
+          },
+        });
+      } else if (store.nearbyProp?.id === item.instanceId) {
+        store.setNearbyProp(null);
+      }
+    }
+  });
+
+  const handleSelect = (e) => {
+    if (!isDecorating) return;
+    e.stopPropagation();
+    selectRoomItem(item.instanceId);
+  };
 
   return (
     <group
       position={[item.x, 0, item.z]}
-      rotation={[0, (item.rotation * Math.PI) / 2, 0]}
+      rotation={[0, (item.rotation || 0) * (Math.PI / 2), 0]}
       scale={FURNITURE_SCALE}
-      onClick={(e) => {
-        if (!isDecorating) return;
-        e.stopPropagation();
-        selectRoomItem(item.instanceId);
-      }}
+      onPointerDown={handleSelect}
+      onClick={handleSelect}
     >
       <FurnitureMesh itemId={item.itemId} />
 
       {isSelected && (
-        <mesh
-          geometry={selectRingGeo}
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, 0.035, 0]}
-        >
-          <meshBasicMaterial color="#FFE600" />
+        <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.65, 0.82, 32]} />
+          <meshBasicMaterial color="#FF5A1F" transparent opacity={0.9} />
         </mesh>
       )}
     </group>
